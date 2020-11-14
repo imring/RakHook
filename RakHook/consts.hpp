@@ -40,4 +40,17 @@ namespace rakhook::offsets {
 		constexpr uintptr_t write_lock     = 0x395b0;
 		constexpr uintptr_t write_unlock   = 0x395f0;
 	};
+
+	namespace v03dlr1 {
+		constexpr uintptr_t samp_info           = 0x2aca24;
+		constexpr uintptr_t rakclient_interface = 0x2c;
+		
+		constexpr uintptr_t destroy_interface = 0x37880;
+		constexpr uintptr_t handle_rpc_packet = 0x3a8a0;
+
+		constexpr uintptr_t alloc_packet   = 0x37d90;
+		constexpr uintptr_t offset_packets = 0xdb6;
+		constexpr uintptr_t write_lock     = 0x390c0;
+		constexpr uintptr_t write_unlock   = 0x39100;
+	};
 };

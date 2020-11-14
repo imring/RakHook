@@ -28,7 +28,7 @@ using handle_rpc_packet_t = bool(__thiscall *)(void *rakpeer, const char *data, 
 hook_shared_t<void(*)(void*)>      destroy_ri_hook;
 hook_shared_t<handle_rpc_packet_t> handle_rpc_hook;
 
-namespace offs = rakhook::offsets::v037r3;
+namespace offs = rakhook::offsets::v03dlr1;
 
 /// This template functions should be used when we perform cast from one pointer type to another
 /// It's safer than using reiterpret_cast
@@ -89,7 +89,7 @@ bool handle_rpc_packet(void *&rp, const char *&data, int &length, PlayerID &play
 		if (!incoming.ReadBits(input, bits_data, false))
 			return false;
 
-		callback_bs = std::make_shared<RakNet::BitStream>(input, (bits_data / 8) + 1, true);
+		callback_bs = std::make_shared<RakNet::BitStream>(input, BITS_TO_BYTES(bits_data), true);
 
 		if (!used_alloca)
 			delete[] input;
@@ -101,7 +101,7 @@ bool handle_rpc_packet(void *&rp, const char *&data, int &length, PlayerID &play
 
 	incoming.SetWriteOffset(offset);
 	incoming.Write(id);
-	bits_data = callback_bs->GetNumberOfBytesUsed() * 8;
+	bits_data = BYTES_TO_BITS(callback_bs->GetNumberOfBytesUsed());
 	incoming.WriteCompressed(bits_data);
 	if (bits_data)
 		incoming.WriteBits(callback_bs->GetData(), bits_data, false);
@@ -162,8 +162,9 @@ bool rakhook::emul_rpc(unsigned char id, RakNet::BitStream &rpc_bs) {
 	RakNet::BitStream bs;
 	bs.Write<unsigned char>(ID_RPC);
 	bs.Write(id);
-	bs.WriteCompressed<unsigned int>(rpc_bs.GetNumberOfBytesUsed() * 8);
-	bs.WriteBits(rpc_bs.GetData(), rpc_bs.GetNumberOfBytesUsed() * 8, false);
+	bs.WriteCompressed<unsigned int>(BYTES_TO_BITS(rpc_bs.GetNumberOfBytesUsed()));
+	bs.WriteBits(rpc_bs.GetData(), BYTES_TO_BITS(rpc_bs.GetNumberOfBytesUsed()), false);
+
 	return handle_rpc_hook->call_original(rakpeer, pointer_cast<char*>(bs.GetData()), bs.GetNumberOfBytesUsed(), gplayerid);
 }
 
