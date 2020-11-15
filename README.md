@@ -6,6 +6,9 @@ RakHook - библиотека, которая добавляет события
 
 Функции:
 ```cpp
+uintptr_t samp_addr(uintptr_t offset = 0); // получить адрес samp.dll со смещением
+samp_version get_samp_version(); // получить версию SA:MP.
+
 bool rakhook::initialize(); // инициализация ракхука.
 void rakhook::destroy(); // завершение работы библиотеки.
 
