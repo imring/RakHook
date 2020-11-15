@@ -2,12 +2,20 @@
 #include <vector>
 #include <functional>
 
-#include "consts.hpp"
-
 #include "RakNet/RakClientInterface.h"
 
 namespace rakhook {
+	enum samp_version {
+		SAMP_UNKNOWN = -1,
+
+		SAMP_037_R1 = 0,
+		SAMP_037_R3_1,
+		SAMP_037_R4,
+		SAMP_03DL_R1
+	};
+
 	uintptr_t samp_addr(uintptr_t offset = 0);
+	samp_version get_samp_version();
 
 	template<typename T>
 	struct on_event: public std::vector<std::function<T>> {

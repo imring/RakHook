@@ -35,17 +35,21 @@ public:
 	virtual bool HasPassword(void) const { return rakhook::orig->HasPassword(); }
 	virtual bool Send(const char* data, const int length, PacketPriority priority, PacketReliability reliability, char orderingChannel) { return rakhook::orig->Send(data, length, priority, reliability, orderingChannel); }
 
-	virtual bool Send(RakNet::BitStream* bitStream, PacketPriority priority, PacketReliability reliability, char orderingChannel) {
+	virtual bool Send(RakNet::BitStream *bitStream, PacketPriority priority, PacketReliability reliability, char orderingChannel) {
 		for (auto &func: rakhook::on_send_packet)
 			if (!func(bitStream, priority, reliability, orderingChannel)) return false;
 		return rakhook::orig->Send(bitStream, priority, reliability, orderingChannel);
 	}
 
-	virtual Packet* Receive(void) {
+	virtual Packet *Receive(void) {
 		Packet *packet = rakhook::orig->Receive();
-		if (packet != nullptr)
-			for (auto &func: rakhook::on_receive_packet)
-				if (!func(packet)) return nullptr;
+		if (!packet) return nullptr;
+
+		for (auto &func: rakhook::on_receive_packet)
+			if (!func(packet)) {
+				rakhook::orig->DeallocatePacket(packet);
+				return nullptr;
+			}
 		return packet;
 	}
 
@@ -69,14 +73,13 @@ public:
 		return rakhook::orig->RPC(uniqueID, data, bitLength, priority, reliability, orderingChannel, shiftTimestamp);
 	};
 	virtual bool RPC(int *uniqueID, RakNet::BitStream *bitStream, PacketPriority priority, PacketReliability reliability, char orderingChannel, bool shiftTimestamp) {
-		int _uniqueID;
-		if (uniqueID != nullptr) {
-			_uniqueID = *uniqueID;
-			for (auto &func: rakhook::on_send_rpc)
-				if (!func(_uniqueID, bitStream, priority, reliability, orderingChannel, shiftTimestamp))
-					return false;
-		}
-		return rakhook::orig->RPC(uniqueID == nullptr ? nullptr : &_uniqueID, bitStream, priority, reliability, orderingChannel, shiftTimestamp);
+		if (!uniqueID) return rakhook::orig->RPC(uniqueID, bitStream, priority, reliability, orderingChannel, shiftTimestamp);
+
+		int _uniqueID = *uniqueID;
+		for (auto &func: rakhook::on_send_rpc)
+			if (!func(_uniqueID, bitStream, priority, reliability, orderingChannel, shiftTimestamp))
+				return false;
+		return rakhook::orig->RPC(&_uniqueID, bitStream, priority, reliability, orderingChannel, shiftTimestamp);
 	}
 	virtual bool RPC_(int *uniqueID, RakNet::BitStream *bitStream, PacketPriority priority, PacketReliability reliability, char orderingChannel, bool shiftTimestamp, NetworkID networkID) {
 		return rakhook::orig->RPC_(uniqueID, bitStream, priority, reliability, orderingChannel, shiftTimestamp, networkID);

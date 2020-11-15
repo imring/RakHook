@@ -2,7 +2,18 @@
 #include <ctype.h>
 
 namespace rakhook::offsets {
-	namespace v037r1 {
+	uintptr_t samp_info();
+	uintptr_t rakclient_interface();
+
+	uintptr_t destroy_interface();
+	uintptr_t handle_rpc_packet();
+
+	uintptr_t alloc_packet();
+	uintptr_t offset_packets();
+	uintptr_t write_lock();
+	uintptr_t write_unlock();
+
+	/*namespace v037r1 {
 		constexpr uintptr_t samp_info           = 0x21a0f8;
 		constexpr uintptr_t rakclient_interface = 0x3c9;
 
@@ -52,5 +63,5 @@ namespace rakhook::offsets {
 		constexpr uintptr_t offset_packets = 0xdb6;
 		constexpr uintptr_t write_lock     = 0x390c0;
 		constexpr uintptr_t write_unlock   = 0x39100;
-	};
+	};*/
 };

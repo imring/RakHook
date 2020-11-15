@@ -1,4 +1,4 @@
-#include "consts.hpp"
+#include "offsets.hpp"
 #include "rakhook.hpp"
 #include "hook_shared.hpp"
 #include "hooked_rakclient_interface.hpp"
@@ -27,8 +27,6 @@ using handle_rpc_packet_t = bool(__thiscall *)(void *rakpeer, const char *data, 
 
 hook_shared_t<void(*)(void*)>      destroy_ri_hook;
 hook_shared_t<handle_rpc_packet_t> handle_rpc_hook;
-
-namespace offs = rakhook::offsets::v03dlr1;
 
 /// This template functions should be used when we perform cast from one pointer type to another
 /// It's safer than using reiterpret_cast
@@ -115,20 +113,33 @@ uintptr_t rakhook::samp_addr(uintptr_t offset) {
 	return samp_module + offset;
 }
 
+rakhook::samp_version rakhook::get_samp_version() {
+	uintptr_t base = samp_addr();
+	IMAGE_NT_HEADERS *ntheader = reinterpret_cast<IMAGE_NT_HEADERS*>(base + reinterpret_cast<IMAGE_DOS_HEADER*>(base)->e_lfanew);
+	uintptr_t ep = ntheader->OptionalHeader.AddressOfEntryPoint;
+	switch (ep) {
+	case 0x31DF13: return SAMP_037_R1;
+	case 0xCC4D0:  return SAMP_037_R3_1;
+	case 0xCBCB0:  return SAMP_037_R4;
+	case 0xFDB60:  return SAMP_03DL_R1;
+	}
+	return SAMP_UNKNOWN;
+}
+
 bool rakhook::initialize() {
 	if (initialized) return true;
 
-	uintptr_t samp_info = *reinterpret_cast<uintptr_t*>(samp_addr(offs::samp_info));
+	uintptr_t samp_info = *reinterpret_cast<uintptr_t*>(samp_addr(offsets::samp_info()));
 	if (!samp_info) return false;
 
-	RakClientInterface **rakclient_interface = reinterpret_cast<RakClientInterface **>(samp_info + offs::rakclient_interface);
+	RakClientInterface **rakclient_interface = reinterpret_cast<RakClientInterface **>(samp_info + offsets::rakclient_interface());
 	if (!(orig = *rakclient_interface)) return false;
 
 	hooked_interface = new hooked_rakclient_interface(orig);
 	*rakclient_interface = pointer_cast<RakClientInterface *>(hooked_interface);
 
-	destroy_ri_hook = std::make_shared<hook_t<void(*)(void*)>>(reinterpret_cast<void(*)(void*)>(samp_addr(offs::destroy_interface)), destroy_rakclient_interface);
-	handle_rpc_hook = std::make_shared<hook_t<handle_rpc_packet_t>>(reinterpret_cast<handle_rpc_packet_t>(samp_addr(offs::handle_rpc_packet)), handle_rpc_packet);
+	destroy_ri_hook = std::make_shared<hook_t<void(*)(void*)>>(reinterpret_cast<void(*)(void*)>(samp_addr(offsets::destroy_interface())), destroy_rakclient_interface);
+	handle_rpc_hook = std::make_shared<hook_t<handle_rpc_packet_t>>(reinterpret_cast<handle_rpc_packet_t>(samp_addr(offsets::handle_rpc_packet())), handle_rpc_packet);
 
 	return (initialized = true);
 }
@@ -136,10 +147,10 @@ bool rakhook::initialize() {
 void rakhook::destroy() {
 	if (!initialized) return;
 
-	uintptr_t samp_info = *reinterpret_cast<uintptr_t*>(samp_addr(offs::samp_info));
+	uintptr_t samp_info = *reinterpret_cast<uintptr_t*>(samp_addr(offsets::samp_info()));
 	if (!samp_info) return;
 
-	RakClientInterface **rakclient_interface = reinterpret_cast<RakClientInterface **>(samp_info + offs::rakclient_interface);
+	RakClientInterface **rakclient_interface = reinterpret_cast<RakClientInterface **>(samp_info + offsets::rakclient_interface());
 	*rakclient_interface = orig;
 
 	destroy_ri_hook.reset();
@@ -170,13 +181,13 @@ bool rakhook::emul_rpc(unsigned char id, RakNet::BitStream &rpc_bs) {
 
 bool rakhook::emul_packet(RakNet::BitStream &pbs) {
 	if (!initialized || !rakpeer) return false;
-	Packet *send_packet = reinterpret_cast<Packet * (*)(size_t)>(samp_addr(offs::alloc_packet))(pbs.GetNumberOfBytesUsed());
+	Packet *send_packet = reinterpret_cast<Packet * (*)(size_t)>(samp_addr(offsets::alloc_packet()))(pbs.GetNumberOfBytesUsed());
 	memcpy(send_packet->data, pbs.GetData(), send_packet->length);
 
 	// RakPeer::AddPacketToProducer
-	char *packets = static_cast<char *>(rakpeer) + offs::offset_packets;
-	auto write_lock = reinterpret_cast<Packet **(__thiscall *)(void*)>(samp_addr(offs::write_lock));
-	auto write_unlock = reinterpret_cast<void(__thiscall *)(void*)>(samp_addr(offs::write_unlock));
+	char *packets = static_cast<char *>(rakpeer) + offsets::offset_packets();
+	auto write_lock = reinterpret_cast<Packet **(__thiscall *)(void*)>(samp_addr(offsets::write_lock()));
+	auto write_unlock = reinterpret_cast<void(__thiscall *)(void*)>(samp_addr(offsets::write_unlock()));
 
 	*write_lock(packets) = send_packet;
 	write_unlock(packets);

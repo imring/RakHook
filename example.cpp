@@ -113,7 +113,7 @@ LRESULT wndproc_hooked(HWND &hwnd, UINT &Message, WPARAM &wparam, LPARAM &lparam
 		if (wparam == VK_NUMPAD4) {
 			RakNet::BitStream rpc;
 
-			rpc.Write<unsigned short>(999);
+			rpc.Write<unsigned short>(0);
 			std::string name = "test_name";
 			write_with_size<unsigned char>(&rpc, name);
 			rpc.Write<unsigned char>(1);
@@ -127,7 +127,7 @@ LRESULT wndproc_hooked(HWND &hwnd, UINT &Message, WPARAM &wparam, LPARAM &lparam
 			float quat[4] = { 0 };
 
 			bs.Write<unsigned char>(ID_PLAYER_SYNC);
-			bs.Write<unsigned short>(999);
+			bs.Write<unsigned short>(0);
 			bs.Write0(); bs.Write0();
 			bs.Write<unsigned char>(0);
 			bs.Write(vec);
@@ -148,6 +148,8 @@ LRESULT wndproc_hooked(HWND &hwnd, UINT &Message, WPARAM &wparam, LPARAM &lparam
 class rakhook_example {
 public:
 	rakhook_example() {
+		if (!rakhook::samp_addr() || rakhook::get_samp_version() == rakhook::SAMP_UNKNOWN) return;
+
 		game_loop_hook = std::make_shared<hook_t<void(*)()>>(reinterpret_cast<void(*)()>(0x53BEE0), game_loop);
 		wndproc_hook = std::make_shared<hook_t<wndproc_t>>(reinterpret_cast<wndproc_t>(0x747EB0), wndproc_hooked);
 	}
