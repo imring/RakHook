@@ -1,0 +1,7 @@
+project(RakHook)
+cmake_minimum_required(VERSION 3.10)
+add_subdirectory(RakNet)
+add_subdirectory(YAHL)
+add_subdirectory(RakHook)
+add_library(example SHARED example.cpp)
+target_link_libraries(example PRIVATE RakHook)
