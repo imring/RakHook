@@ -23,5 +23,5 @@ add_library(RakNet
 )
 target_include_directories(RakNet PUBLIC .)
 if (NOT ${MSVC})
-    target_compile_features(RakNet PRIVATE -fpermissive)
+    target_compile_options(RakNet PRIVATE -fpermissive)
 endif()
