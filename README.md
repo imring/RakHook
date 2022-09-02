@@ -1,43 +1,29 @@
 # RakHook
+RakHook is a library that adds RakNet events (incoming/outgoing Packets & RPC), emulation and sending Packets & RPC.  
+There is support for versions 0.3.7-R1, 0.3.7-R3-1, 0.3.7-R4 and 0.3DL-R1.
 
-## Russian
-RakHook - библиотека, которая добавляет события RakNet'a (входящие/исходящие пакеты и RPC), эмуляцию и отправку пакетов и RPC.  
-Есть одновременная поддержка версий 0.3.7-R1, 0.3.7-R3-1, 0.3.7-R4 и 0.3DL-R1.
+## Functions
 
-Функции:
-```cpp
-uintptr_t samp_addr(uintptr_t offset = 0); // получить адрес samp.dll со смещением
-samp_version get_samp_version(); // получить версию SA:MP.
+### SA:MP
+- `std::uintptr_t rakhook::samp_addr(std::uintptr_t offset = 0)` - Get SA:MP module address with an offset.
+- `samp_ver rakhook::samp_version()` - Get SA:MP version supported by RakHook.
 
-bool rakhook::initialize(); // инициализация ракхука.
-void rakhook::destroy(); // завершение работы библиотеки.
+### Events
+- `bool rakhook::initialize()` - Initialize RakHook.
+- `void rakhook::destroy()` - Destroy RakHook.
+- `on_event<send_t> rakhook::on_send_packet` - Outgoing the packet.
+- `on_event<receive_t> rakhook::on_receive_packet` - Incoming the packet.
+- `on_event<send_rpc_t> rakhook::on_send_rpc` - Outgoing RPC.
+- `on_event<receive_rpc_t> rakhook::on_receive_rpc` - Incoming RPC.
 
-bool rakhook::send(RakNet::BitStream *bs, PacketPriority priority, PacketReliability reliability, char ord_channel); // отправка пакета.
-bool rakhook::send_rpc(int id, RakNet::BitStream *bs, PacketPriority priority, PacketReliability reliability, char ord_channel, bool sh_timestamp); // отправка RPC.
+### Send/Emulate
+- `bool rakhook::send(RakNet::BitStream *bs, PacketPriority priority, PacketReliability reliability, char ord_channel)` - Send the packet.
+- `bool rakhook::send_rpc(int id, RakNet::BitStream *bs, PacketPriority priority, PacketReliability reliability, char ord_channel, bool sh_timestamp)` - Send RPC.
+- `bool rakhook::emul_packet(RakNet::BitStream &pbs)` - Emulate the packet.
+- `bool rakhook::emul_rpc(unsigned char id, RakNet::BitStream &rpc_bs)` - Emulate RPC.
 
-bool rakhook::emul_rpc(unsigned char id, RakNet::BitStream &rpc_bs); // эмуляция RPC.
-bool rakhook::emul_packet(RakNet::BitStream &pbs); // эмуляция пакета.
-```
+## Example
+You can learn the example [here](./example/).
 
-События:
-```cpp
-// исходящий RPC.
-rakhook::on_send_rpc += [](int &id, RakNet::BitStream *&bs, PacketPriority &priority, PacketReliability &reliability, char &ord_channel, bool &sh_timestamp) -> bool {
-  return true;
-};
-
-// исходящий пакет.
-rakhook::on_send_packet += [](RakNet::BitStream *&bs, PacketPriority &priority, PacketReliability &reliability, char &ord_channel) -> bool {
-  return true;
-};
-
-// входящий RPC.
-rakhook::on_receive_rpc += [](unsigned char &id, RakNet::BitStream *&&bs) -> bool {
-  return true;
-};
-
-// входящий пакет.
-rakhook::on_receive_packet += [](Packet *&p) -> bool {
-  return true;
-};
-```
+## Use in projects
+Recommended way to link the library - FetchContent, but you can use others (submodule, install, etc).

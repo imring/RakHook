@@ -14,9 +14,9 @@
 /// Software Foundation; either version 2 of the License, or (at your
 /// option) any later version.
 
-#include "DS_HuffmanEncodingTree.h"
-#include "DS_Queue.h"
-#include "BitStream.h"
+#include "../../include/RakNet/DS_HuffmanEncodingTree.h"
+#include "../../include/RakNet/DS_Queue.h"
+#include "../../include/RakNet/BitStream.h"
 #include <assert.h> 
 
 #ifdef _MSC_VER

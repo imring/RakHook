@@ -18,7 +18,7 @@
 #include "BitStream_NoTemplate.cpp"
 #else
 
-#include "BitStream.h"
+#include "../../include/RakNet/BitStream.h"
 #include <stdlib.h>
 #include <memory.h>
 #include <stdio.h>

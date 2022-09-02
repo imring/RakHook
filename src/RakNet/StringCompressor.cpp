@@ -14,9 +14,9 @@
 /// Software Foundation; either version 2 of the License, or (at your
 /// option) any later version.
 
-#include "StringCompressor.h"
-#include "DS_HuffmanEncodingTree.h"
-#include "BitStream.h"
+#include "../../include/RakNet/StringCompressor.h"
+#include "../../include/RakNet/DS_HuffmanEncodingTree.h"
+#include "../../include/RakNet/BitStream.h"
 #include <assert.h>
 #include <string.h>
 #include <memory.h>
