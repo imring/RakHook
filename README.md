@@ -1,6 +1,6 @@
 # RakHook
 RakHook is a library that adds RakNet events (incoming/outgoing Packets & RPC), emulation and sending Packets & RPC.  
-There is support for versions 0.3.7-R1, 0.3.7-R3-1, 0.3.7-R4 and 0.3DL-R1.
+There is support for versions 0.3.7-R1, 0.3.7-R2, 0.3.7-R3-1, 0.3.7-R4, 0.3.7-R5 and 0.3DL-R1.
 
 ## Functions
 
