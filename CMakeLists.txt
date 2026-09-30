@@ -10,6 +10,11 @@ endif ()
 
 option(RAKHOOK_INSTALL "Install targets" ${RAKHOOK_MASTER_PROJECT})
 option(RAKHOOK_EXAMPLE "Build an example" ${RAKHOOK_MASTER_PROJECT})
+option(RAKHOOK_TESTS "Build unit tests for hook wrappers" ${RAKHOOK_MASTER_PROJECT})
+
+option(RAKHOOK_WRAPPER_CYANIDE "Build cyanide hook wrapper" OFF)
+option(RAKHOOK_WRAPPER_MINHOOK "Build MinHook hook wrapper" OFF)
+option(RAKHOOK_WRAPPER_KTHOOK "Build kthook hook wrapper" ${RAKHOOK_MASTER_PROJECT})
 
 add_subdirectory(src)
 
@@ -18,7 +23,7 @@ if (RAKHOOK_INSTALL)
     include(CMakePackageConfigHelpers)
 
     install(
-        TARGETS rakhook
+        TARGETS rakhook_raknet rakhook
         EXPORT ${PROJECT_NAME}Targets
 
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -59,6 +64,14 @@ if (RAKHOOK_INSTALL)
     )
 endif ()
 
+if (RAKHOOK_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif ()
+
 if (RAKHOOK_EXAMPLE)
+    if (NOT RAKHOOK_WRAPPER_CYANIDE AND NOT RAKHOOK_WRAPPER_MINHOOK AND NOT RAKHOOK_WRAPPER_KTHOOK)
+        message(FATAL_ERROR "RAKHOOK_EXAMPLE requires at least one of the hook wrappers to be enabled")
+    endif ()
     add_subdirectory(example)
 endif ()

@@ -1,21 +1,29 @@
 #ifndef RAKHOOK_DETAIL_HPP
 #define RAKHOOK_DETAIL_HPP
 
-#include <version>
-#include <type_traits>
-#ifdef __cpp_lib_to_underlying
-#include <utility>
-#endif
-
 namespace rakhook::detail {
-template <typename Enum>
-constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept {
-#ifdef __cpp_lib_to_underlying
-    return std::to_underlying(e);
-#else
-    return static_cast<std::underlying_type_t<Enum>>(e);
-#endif
-}
+template <typename>
+struct function_traits;
+
+template <typename Ret, typename... Args>
+struct function_traits<Ret(Args...)> {
+    using return_type = Ret;
+};
+
+template <typename Ret, typename... Args>
+struct function_traits<Ret (*)(Args...)> : function_traits<Ret(Args...)> {};
+
+template <typename Ret, typename... Args>
+struct function_traits<Ret(__stdcall *)(Args...)> : function_traits<Ret(Args...)> {};
+
+template <typename Ret, typename... Args>
+struct function_traits<Ret(__thiscall *)(Args...)> : function_traits<Ret(Args...)> {};
+
+template <typename Ret, typename... Args>
+struct function_traits<Ret(__fastcall *)(Args...)> : function_traits<Ret(Args...)> {};
+
+template <typename Func>
+using function_return_t = typename function_traits<Func>::return_type;
 } // namespace rakhook::detail
 
 #endif // RAKHOOK_DETAIL_HPP

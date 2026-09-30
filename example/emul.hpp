@@ -5,15 +5,17 @@
 
 #include "detail.hpp"
 
+template <typename RakHook>
 inline void change_name() {
     RakNet::BitStream rpc;
     rpc.Write<unsigned short>(0);                      // playerId
     write_with_size<unsigned char>(&rpc, "test_name"); // name
     rpc.Write<unsigned char>(1);                       // success
 
-    rakhook::emul_rpc(11, rpc); // SETPLAYERNAME
+    RakHook::emul_rpc(11, rpc); // SETPLAYERNAME
 }
 
+template <typename RakHook>
 inline void emul_player_sync() {
     RakNet::BitStream bs;
     float             vec[3]  = {0};
@@ -33,7 +35,7 @@ inline void emul_player_sync() {
     bs.Write0();                  // w/o surfingVehicleId & surfingOffsets
     bs.Write0();                  // w/o animationId & animationFlags
 
-    rakhook::emul_packet(bs);
+    RakHook::emul_packet(bs);
 }
 
 #endif // RHEXAMPLE_EMUL_HPP

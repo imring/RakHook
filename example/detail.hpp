@@ -8,8 +8,9 @@
 template <typename T>
 std::string read_with_size(RakNet::BitStream *bs) {
     T size;
-    if (!bs->Read(size))
+    if (!bs->Read(size)) {
         return {};
+    }
     std::string str(size, '\0');
     bs->Read(str.data(), size);
     return str;

@@ -4,14 +4,15 @@
 #include <string>
 
 #include "RakNet/BitStream.h"
-#include "RakNet/StringCompressor.h"
 #include "RakNet/PacketEnumerations.h"
+#include "RakNet/StringCompressor.h"
 
 #include "detail.hpp"
 
 inline bool on_show_dialog(unsigned char &id, RakNet::BitStream *bs) {
-    if (id != 61) // RPC_ShowDialog
+    if (id != 61) { // RPC_ShowDialog
         return true;
+    }
     unsigned short did;
     unsigned char  style;
     std::string    title, but1, but2, text(4096, 0);
@@ -27,8 +28,9 @@ inline bool on_show_dialog(unsigned char &id, RakNet::BitStream *bs) {
     title      = std::to_string(id) + " | " + title;
     text       = "[HOOKED] " + text;
     size_t pos = text.find('\0');
-    if (pos != std::string::npos)
+    if (pos != std::string::npos) {
         text.insert(pos, " [HOOKED]");
+    }
     text.resize(4096);
 
     // write
@@ -43,8 +45,9 @@ inline bool on_show_dialog(unsigned char &id, RakNet::BitStream *bs) {
 }
 
 inline bool on_client_msg(unsigned char &id, RakNet::BitStream *bs) {
-    if (id != 93) // RPC_ClientMessage
+    if (id != 93) { // RPC_ClientMessage
         return true;
+    }
     unsigned long color;
     std::string   msg;
 
